@@ -1,4 +1,5 @@
 source 'https://rubygems.org'
 
 gem 'RubySunrise'
+gem 'faraday'
 gem 'pry'
