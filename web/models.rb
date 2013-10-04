@@ -36,7 +36,7 @@ class User
   include MongoMapper::Document
 
   key :email, String
-  key :phone. String
+  key :phone, String
   key :authorized, Boolean, :default => false
   key :admin, Boolean, :default => false
 end

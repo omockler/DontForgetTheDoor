@@ -1,9 +1,9 @@
 require 'bundler/setup'
 require 'sinatra/base'
 require 'omniauth-facebook'
-require './public_app'
+require './web/public_app'
 
-SCOPE = 'email,read_stream'
+SCOPE = 'email'
 
 use Rack::Session::Cookie
 

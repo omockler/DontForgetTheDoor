@@ -7,7 +7,7 @@ require 'twilio-ruby'
 require 'mongo_mapper'
 require 'pry'
 
-require "./models"
+require "./web/models"
 
 Dotenv.load
 
