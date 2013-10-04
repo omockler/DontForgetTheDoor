@@ -5,6 +5,7 @@ require 'dotenv'
 require 'uri'
 require 'twilio-ruby'
 require 'mongo_mapper'
+require 'slim'
 require 'pry'
 
 require "./web/models"
@@ -12,6 +13,7 @@ require "./web/models"
 Dotenv.load
 
 SCOPE = 'email'
+Slim::Engine.set_default_options :pretty => true
 
 class PublicApp < Sinatra::Base
   set :protection, :except => :frame_options
@@ -38,8 +40,7 @@ class PublicApp < Sinatra::Base
         User.create(:email => auth_hash[:info][:email], :authorized => true, :admin => true)
       end
       
-      @user = User.find_by_email(auth_hash[:info][:email])
-      binding.pry
+      @user = User.find_or_create_by_email(auth_hash[:info][:email])
       @user and @user.authorized
     end
 
@@ -68,7 +69,7 @@ class PublicApp < Sinatra::Base
     end
 
     def send_text (message)
-      message = twilio_client.account.messages.create(:body => "Jenny please?! I love you <3",
+      message = twilio_client.account.messages.create(:body => message,
         :to => ENV["TEST_PHONE"],
         :from => ENV["TWILIO_NUMBER"])
     end
@@ -109,7 +110,40 @@ class PublicApp < Sinatra::Base
 
   get '/' do
     web_authenticate
-    "The garage door is #{query_door_status ? "open" : "closed"}"
+    door_status = query_door_status
+    @message = "The garage door is #{door_status ? "open" : "closed"}. #{door_status ? "Close" : "Open"} it?"
+    @button_state = false
+    slim :index
+  end
+  
+  post '/door/toggle' do
+    web_authenticate
+    door_status = query_door_status
+    @message = route_sms (door_status ? "close" : "open")
+    @button_state = true
+    slim :index
+  end
+
+  get '/history' do
+    web_authenticate
+    @statuses = DoorStatus.all(:order => :created_at.desc)
+    slim :history
+  end
+  
+  get '/manage_users' do
+    admin_authenticate
+    @users = User.all()
+    slim :users
+  end
+
+  post '/manage/user/:email' do
+    admin_authenticate
+    user = User.find_by_email(params[:email])
+    user.phone = params[:phone]
+    user.authorized = params[:authorized].nil? ? false : true
+    user.admin = params[:admin].nil ? false : true
+    user.save!
+    slim :user, locals: {user: user}
   end
 
   get '/logout' do
@@ -141,22 +175,23 @@ class PublicApp < Sinatra::Base
     api_authenticate
     content_type 'application/json'
 
-    job = Job.first(:order => :created_at.desc)
-    job.started = true
-    job.save!
-    MultiJson.encode(job)   
+    job = Job.first(:order => :created_at.desc, :started => false)
+    if job
+      job.started = true
+      job.save!
+      MultiJson.encode(job)
+    end
   end
   
   post '/door/job/:id' do
     api_authenticate
     js = MultiJson.load(request.body.read, :symbolize_keys => true)
-    binding.pry
-    if js[:success] == true
+    if js[:success]
       job = Job.find_by_id(params[:id])
       job.finished = true
       job.save!
       DoorStatus.create(:is_open => js[:is_open])
-      send_text "The door has #{js[:is_open] ? "opened" : "closed"}."
+      send_text "The door has #{js[:is_open] == "true" ? "opened" : "closed"}."
     else
       # Requeue the job and notify
       job = Job.find_by_id(params[:id])

@@ -1,0 +1,14 @@
+form class="form-inline" role="form" action="/manage/user/#{user.email}" method="POST"
+  div.form-group
+    label.sr-only Email address
+    input.form-control type="email" placeholder="Enter email" name="email" value="#{user.email}"
+  div.form-group
+    label.sr-only Phone Number
+    input.form-control type="tel" placeholder="Enter Phone" name="phone" value="#{user.phone}"
+  div.checkbox
+    label
+      input> type="checkbox" name="authorized" checked="#{user.authorized}" Is Authorized?
+  div.checkbox
+    label
+      input> type="checkbox" name="admin" checked="#{user.admin}" Is Admin?
+  button.btn.btn-default type="submit" Save User

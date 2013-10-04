@@ -1,0 +1,9 @@
+table
+  thead
+    th Open-ness
+    th Time
+  tbody
+    - @statuses.each do |status|
+      tr
+        td = status.is_open
+        td = status.created_at
