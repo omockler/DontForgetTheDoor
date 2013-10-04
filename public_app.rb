@@ -159,4 +159,10 @@ class PublicApp < Sinatra::Base
     api_authenticate
     DoorStatus.create(:is_open => params[:status])
   end
+
+  post '/door/auto-close' do
+    api_authenticate
+    AutoCloseEvent.create
+    send_text "Garage door has been automatically shut."
+  end
 end
