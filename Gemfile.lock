@@ -21,8 +21,10 @@ GEM
       rack-test (>= 0.5.4)
       xpath (~> 2.0)
     coderay (1.0.9)
+    daemons (1.1.9)
     diff-lcs (1.2.4)
     dotenv (0.9.0)
+    eventmachine (1.0.3)
     faker (1.2.0)
       i18n (~> 0.5)
     faraday (0.8.8)
@@ -31,13 +33,8 @@ GEM
     hashie (2.0.5)
     httpauth (0.2.0)
     i18n (0.6.5)
-    json (1.8.0)
     jwt (0.1.8)
       multi_json (>= 1.5)
-    localtunnel (0.3)
-      json (>= 1.2.4)
-      net-ssh (>= 2.0.22)
-      net-ssh-gateway (>= 1.0.1)
     machinist (2.0)
     method_source (0.8.2)
     mime-types (1.25)
@@ -50,9 +47,6 @@ GEM
       plucky (~> 0.5.2)
     multi_json (1.8.0)
     multipart-post (1.2.0)
-    net-ssh (2.7.0)
-    net-ssh-gateway (1.2.0)
-      net-ssh (>= 2.6.5)
     nokogiri (1.6.0)
       mini_portile (~> 0.5.0)
     oauth2 (0.8.1)
@@ -99,6 +93,10 @@ GEM
     sys-uname (0.9.2)
       ffi (>= 1.0.0)
     terminal-notifier (1.4.2)
+    thin (1.5.1)
+      daemons (>= 1.0.9)
+      eventmachine (>= 0.12.6)
+      rack (>= 1.0.0)
     tilt (1.4.1)
     twilio-ruby (3.11.1)
       builder (>= 2.1.2)
@@ -117,7 +115,6 @@ DEPENDENCIES
   capybara
   dotenv
   faker
-  localtunnel
   machinist
   mongo_mapper (~> 0.12.0)
   omniauth
@@ -127,4 +124,5 @@ DEPENDENCIES
   rspec
   rspec-nc
   sinatra
+  thin
   twilio-ruby

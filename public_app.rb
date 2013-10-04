@@ -53,11 +53,13 @@ class PublicApp < Sinatra::Base
 		end
 
 		def twilio_client
-			@twilio_client ||= Twilio::REST::Client.new ENV["TWILIO_ACCOUNT_ID"], ENV["TWILIO_AUTH_TOKENs"]
+			@twilio_client ||= Twilio::REST::Client.new ENV["TWILIO_ACCOUNT_ID"], ENV["TWILIO_AUTH_TOKEN"]
 		end
 
-		def send_text
-
+		def send_text (message)
+			message = twilio_client.account.messages.create(:body => "Jenny please?! I love you <3",
+    		:to => ENV["TEST_PHONE"],
+    		:from => ENV["TWILIO_NUMBER"])
 		end
 
 		def query_door_status
@@ -112,11 +114,11 @@ class PublicApp < Sinatra::Base
 	end
 
 	# HANDLE TWILIO MESSAGES
-	get '/twilio/message/recieve' do
-		twilio_auth params[:AccountSid]
+	post '/twilio/message/recieve' do
+		twilio_auth params[:AccountSid], "FakeSender"
+
 		sender = params[:From]
-		incoming_message = params[:Body]
-		outgoing_message = route_sms
+		outgoing_message = route_sms params[:Body]
 		response = Twilio::TwiML::Response.new do |r|
 			r.Message outgoing_message
 		end
@@ -126,17 +128,35 @@ class PublicApp < Sinatra::Base
 	# API FOR WORKING WITH THE DOOR CONTROLLER
 	get '/door/jobs' do
 		api_authenticate
+		content_type 'application/json'
+    
+    job = Job.first(:order => :created_at.desc)
+    job.started = true
+    job.save!
+    MultiJson.encode(job)		
 	end
 	
-	post '/door/job/{id}' do
+	post '/door/job/:id' do
 		api_authenticate
+		js = MultiJson.load(request.body.read, :symbolize_keys => true)
+		binding.pry
+		if js[:success] == true
+			job = Job.find_by_id(params[:id])
+			job.finished = true
+			job.save!
+			DoorStatus.create(:is_open => js[:is_open])
+			send_text "The door has #{js[:is_open] ? "opened" : "closed"}."
+		else
+			# Requeue the job and notify
+			job = Job.find_by_id(params[:id])
+			job.started = false
+			job.save!
+			send_text "Failed while trying to #{job.type} the door."
+		end
 	end
 
-	post '/door/warn/{state}' do
+	post '/door/status/:status' do
 		api_authenticate
-	end
-
-	post '/door/status' do
-		api_authenticate
+		DoorStatus.create(:is_open => params[:status])
 	end
 end
