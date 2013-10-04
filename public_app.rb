@@ -33,14 +33,25 @@ class PublicApp < Sinatra::Base
     end
 
     def user_is_recognized?
-      # TODO: Check to make sure the user is in the known user list
-      true
+      # Create an admin if no users exist
+      if User.all().count == 0
+        User.create(:email => auth_hash[:info][:email], :authorized => true, :admin => true)
+      end
+      
+      @user = User.find_by_email(auth_hash[:info][:email])
+      binding.pry
+      @user and @user.authorized
     end
 
     def web_authenticate
       #/auth/facebook?display=popup
       redirect '/auth/facebook' unless auth_hash
       halt 401, "Not Authorized" unless user_is_recognized?
+    end
+
+    def admin_authenticate
+      web_authenticate
+      halt 401 unless @user.admin
     end
 
     def api_authenticate

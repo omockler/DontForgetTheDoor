@@ -31,3 +31,12 @@ class AutoCloseEvent
     DoorStatus.create(:is_open => false)
   end
 end
+
+class User
+  include MongoMapper::Document
+
+  key :email, String
+  key :phone. String
+  key :authorized, Boolean, :default => false
+  key :admin, Boolean, :default => false
+end
