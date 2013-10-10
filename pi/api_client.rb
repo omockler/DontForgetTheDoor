@@ -1,6 +1,5 @@
 require 'faraday'
 require 'json'
-require 'pry'
 
 class DoorApi
   def initialize
@@ -32,7 +31,7 @@ class DoorApi
 
   def auto_close
     @conn.post do |req|
-      req.url "/door/auto-close}"
+      req.url "/door/auto-close"
       req.headers['Content-Type'] = 'application/json'
     end
   end
