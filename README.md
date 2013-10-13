@@ -22,3 +22,10 @@ If you are using heroku this should be pretty simple. Follow the guide [here](ht
 Pi
 ---
 TBA
+
+License
+-------
+
+Copyright (c) 2013 Owen Mockler. Distributed under the MIT License. See
+LICENSE for further details.
+
