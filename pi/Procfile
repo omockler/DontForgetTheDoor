@@ -1,0 +1,2 @@
+jobs: sudo bundle exec ruby job_watcher.rb
+watcher: sudo bundle exec ruby pin_watcher.rb

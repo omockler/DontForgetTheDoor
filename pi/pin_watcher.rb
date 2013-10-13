@@ -8,8 +8,10 @@ api_client = ApiClient.new
 
 sensor_pin = PiPiper::Pin.new pin: 10, direction: :in, invert: true
 motor_pin = PiPiper::Pin.new pin: 7, direction: :out, pull: :up
+override_pin = PiPiper::Pin.new pin: 0, direction: :in, invert: true
 
 after :pin => 10, :goes => :low do
+  return if override_pin.on?
   puts "Door open. Waiting..."
   begin
     Timeout.timeout(60) {
