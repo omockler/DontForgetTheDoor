@@ -1,9 +1,9 @@
 require 'faraday'
 require 'json'
 
-class DoorApi
+class ApiClient
   def initialize
-    @conn = Faraday.new(:url => 'http://localhost:9292') do |faraday|
+    @conn = Faraday.new(:url => 'http://dontforgetthedoor.herokuapp.com') do |faraday|
       faraday.response :logger                  # log requests to STDOUT
       faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
     end
