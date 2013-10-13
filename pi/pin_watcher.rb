@@ -6,25 +6,23 @@ include PiPiper
 
 api_client = ApiClient.new
 
-watch :pin => 10 do
-  api_client.send_status(value != 1)
-end
+sensor_pin = PiPiper::Pin.new pin: 10, direction: :in, invert: true
+motor_pin = PiPiper::Pin.new pin: 7, direction: :out, pull: :up
 
 after :pin => 10, :goes => :low do
   puts "Door open. Waiting..."
   begin
     Timeout.timeout(60) {
-      pin = PiPiper::Pin.new(:pin => 10, :direction => :in)
-      pin.wait_for_change
+      sensor_pin.wait_for_change
       puts "Door closed in time."
     }
    rescue
      puts "Auto closing"
-     door_pin = PiPiper::Pin.new(pin: 7, direction: :out, pull: :up)
-     door_pin.on
+     motor_pin.on
      sleep 5
-     door_pin.off
+     motor_pin.off
      api_client.auto_close
+     api_client.send_status(sensor_pin.on?)
    end
 end
 
