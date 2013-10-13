@@ -14,13 +14,13 @@ loop do
 
   job = api_client.get_job
 
-  return unless job
+  next unless job
 
   # Dont process the job if the door is already in the desired state.
   # TODO: Close put job with fail
 
-  return if job["type"] == "open" and sensor_pin.on?
-  return if job["type"] == "closed" and sensor_pin.off?
+  next if job["type"] == "open" and sensor_pin.on?
+  next if job["type"] == "closed" and sensor_pin.off?
 
   motor_pin.on
   sleep 5
