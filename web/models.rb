@@ -22,14 +22,8 @@ end
 
 class AutoCloseEvent
   include MongoMapper::Document
-  after_create :create_status
 
   timestamps!
-
-  private
-  def create_status 
-    DoorStatus.create(:is_open => false)
-  end
 end
 
 class User
